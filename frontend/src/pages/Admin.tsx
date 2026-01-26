@@ -57,22 +57,22 @@ const Admin: React.FC = () => {
           setOpen(false);
           fetchData();
       } catch (err) {
-          alert('Failed to update user');
+          alert('עדכון המשתמש נכשל');
       }
   };
 
   return (
     <div>
-      <Typography variant="h4" gutterBottom>User Administration</Typography>
+      <Typography variant="h4" gutterBottom>ניהול משתמשים</Typography>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Branch</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>שם</TableCell>
+              <TableCell>אימייל</TableCell>
+              <TableCell>תפקיד</TableCell>
+              <TableCell>סניף</TableCell>
+              <TableCell>פעולות</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -83,7 +83,7 @@ const Admin: React.FC = () => {
                 <TableCell>{u.role}</TableCell>
                 <TableCell>{u.branch?.name}</TableCell>
                 <TableCell>
-                    <Button onClick={() => handleEdit(u)}>Edit</Button>
+                    <Button onClick={() => handleEdit(u)}>עריכה</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -92,19 +92,19 @@ const Admin: React.FC = () => {
       </TableContainer>
 
       <Dialog open={open} onClose={() => setOpen(false)}>
-          <DialogTitle>Edit User: {editUser?.name}</DialogTitle>
+          <DialogTitle>עריכת משתמש: {editUser?.name}</DialogTitle>
           <DialogContent sx={{ minWidth: 300, mt: 1 }}>
               <FormControl fullWidth margin="normal">
-                  <InputLabel>Role</InputLabel>
-                  <Select value={role} label="Role" onChange={(e) => setRole(e.target.value)}>
-                      <MenuItem value="TELLER">Teller</MenuItem>
-                      <MenuItem value="MANAGER">Manager</MenuItem>
-                      <MenuItem value="ADMIN">Admin</MenuItem>
+                  <InputLabel>תפקיד</InputLabel>
+                  <Select value={role} label="תפקיד" onChange={(e) => setRole(e.target.value)}>
+                      <MenuItem value="TELLER">כספר</MenuItem>
+                      <MenuItem value="MANAGER">מנהל</MenuItem>
+                      <MenuItem value="ADMIN">אדמין</MenuItem>
                   </Select>
               </FormControl>
               <FormControl fullWidth margin="normal">
-                  <InputLabel>Branch</InputLabel>
-                  <Select value={branchId} label="Branch" onChange={(e) => setBranchId(e.target.value)}>
+                  <InputLabel>סניף</InputLabel>
+                  <Select value={branchId} label="סניף" onChange={(e) => setBranchId(e.target.value)}>
                       {branches.map(b => (
                           <MenuItem key={b.id} value={b.id}>{b.name}</MenuItem>
                       ))}
@@ -112,8 +112,8 @@ const Admin: React.FC = () => {
               </FormControl>
           </DialogContent>
           <DialogActions>
-              <Button onClick={() => setOpen(false)}>Cancel</Button>
-              <Button onClick={handleSave} color="primary">Save</Button>
+              <Button onClick={() => setOpen(false)}>ביטול</Button>
+              <Button onClick={handleSave} color="primary">שמור</Button>
           </DialogActions>
       </Dialog>
     </div>

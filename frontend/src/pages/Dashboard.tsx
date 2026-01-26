@@ -51,23 +51,23 @@ const Dashboard: React.FC = () => {
         fetchCustomers();
         setNewCustomer({ name: '', email: '', phone: '' });
     } catch (err) {
-        alert('Failed to create customer');
+        alert('יצירת הלקוח נכשלה');
     }
   };
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
-        <Typography variant="h4">Branch Customers</Typography>
+        <Typography variant="h4">לקוחות הסניף</Typography>
         <div style={{ display: 'flex', gap: '20px' }}>
             <TextField 
                 size="small" 
-                label="Search Customers" 
+                label="חיפוש לקוחות" 
                 variant="outlined" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button variant="contained" onClick={() => setOpen(true)}>Add Customer</Button>
+            <Button variant="contained" onClick={() => setOpen(true)}>הוסף לקוח</Button>
         </div>
       </div>
 
@@ -75,10 +75,10 @@ const Dashboard: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Accounts</TableCell>
-              <TableCell>Action</TableCell>
+              <TableCell>שם</TableCell>
+              <TableCell>אימייל</TableCell>
+              <TableCell>חשבונות</TableCell>
+              <TableCell>פעולות</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
                 <TableCell>{c.email}</TableCell>
                 <TableCell>{c.accounts?.length || 0}</TableCell>
                 <TableCell>
-                    <Button onClick={() => navigate(`/customers/${c.id}`)}>View</Button>
+                    <Button onClick={() => navigate(`/customers/${c.id}`)}>צפייה</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -97,15 +97,15 @@ const Dashboard: React.FC = () => {
       </TableContainer>
 
       <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Add New Customer</DialogTitle>
+        <DialogTitle>הוספת לקוח חדש</DialogTitle>
         <DialogContent>
-            <TextField label="Name" fullWidth margin="normal" value={newCustomer.name} onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})} />
-            <TextField label="Email" fullWidth margin="normal" value={newCustomer.email} onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})} />
-            <TextField label="Phone" fullWidth margin="normal" value={newCustomer.phone} onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})} />
+            <TextField label="שם" fullWidth margin="normal" value={newCustomer.name} onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})} />
+            <TextField label="אימייל" fullWidth margin="normal" value={newCustomer.email} onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})} />
+            <TextField label="טלפון" fullWidth margin="normal" value={newCustomer.phone} onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})} />
         </DialogContent>
         <DialogActions>
-            <Button onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} color="primary">Create</Button>
+            <Button onClick={() => setOpen(false)}>ביטול</Button>
+            <Button onClick={handleCreate} color="primary">צור</Button>
         </DialogActions>
       </Dialog>
     </div>

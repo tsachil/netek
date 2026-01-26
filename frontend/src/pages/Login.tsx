@@ -6,17 +6,17 @@ import { Navigate } from 'react-router-dom';
 const Login: React.FC = () => {
   const { login, user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>טוען...</div>;
   if (user) return <Navigate to="/dashboard" />;
 
   return (
     <Container maxWidth="sm">
       <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="100vh">
         <Typography variant="h4" component="h1" gutterBottom>
-          Banker's Daily
+          הבנק שלי
         </Typography>
         <Button variant="contained" color="primary" onClick={login}>
-          Sign in with Google
+          התחברות עם גוגל
         </Button>
       </Box>
     </Container>

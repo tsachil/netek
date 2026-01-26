@@ -54,7 +54,7 @@ const CustomerDetails: React.FC = () => {
         setOpenAccountDialog(false);
         fetchCustomer();
     } catch (err) {
-        alert('Failed to create account');
+        alert('פתיחת חשבון נכשלה');
     }
   };
 
@@ -68,7 +68,7 @@ const CustomerDetails: React.FC = () => {
           fetchCustomer();
           setTxData({ ...txData, amount: '' });
       } catch (err) {
-          alert('Transaction failed');
+          alert('הפעולה נכשלה');
       }
   };
 
@@ -77,18 +77,18 @@ const CustomerDetails: React.FC = () => {
       setOpenTxDialog(true);
   };
 
-  if (!customer) return <div>Loading...</div>;
+  if (!customer) return <div>טוען...</div>;
 
   return (
     <div>
-      <Button variant="outlined" onClick={() => window.history.back()} style={{ marginBottom: '20px' }}>&larr; Back to Dashboard</Button>
+      <Button variant="outlined" onClick={() => window.history.back()} style={{ marginBottom: '20px' }}>&rarr; חזרה ללוח הבקרה</Button>
       
       <Typography variant="h4" gutterBottom>{customer.name}</Typography>
-      <Typography variant="body1">Email: {customer.email}</Typography>
-      <Typography variant="body1" gutterBottom>Phone: {customer.phone}</Typography>
+      <Typography variant="body1">אימייל: {customer.email}</Typography>
+      <Typography variant="body1" gutterBottom>טלפון: {customer.phone}</Typography>
       
       <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-        <Button variant="contained" onClick={() => setOpenAccountDialog(true)}>Open New Account</Button>
+        <Button variant="contained" onClick={() => setOpenAccountDialog(true)}>פתח חשבון חדש</Button>
       </div>
 
       <Grid container spacing={3}>
@@ -98,46 +98,46 @@ const CustomerDetails: React.FC = () => {
                     <CardContent>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                             <div>
-                                <Typography variant="h6">{acc.type} Account</Typography>
-                                <Typography color="textSecondary" variant="body2">ID: {acc.id}</Typography>
+                                <Typography variant="h6">{acc.type === 'CHECKING' ? 'עובר ושב' : 'חיסכון'}</Typography>
+                                <Typography color="textSecondary" variant="body2">מזהה: {acc.id}</Typography>
                             </div>
-                            <Typography variant="h4">${Number(acc.balance).toFixed(2)}</Typography>
+                            <Typography variant="h4">₪{Number(acc.balance).toFixed(2)}</Typography>
                         </div>
                         
                         <div style={{ marginBottom: '20px' }}>
-                            <Button size="small" variant="contained" color="success" style={{ marginRight: '10px' }} onClick={() => openTransaction(acc.id, 'DEPOSIT')}>Deposit</Button>
-                            <Button size="small" variant="contained" color="warning" onClick={() => openTransaction(acc.id, 'WITHDRAWAL')}>Withdraw</Button>
+                            <Button size="small" variant="contained" color="success" style={{ marginLeft: '10px' }} onClick={() => openTransaction(acc.id, 'DEPOSIT')}>הפקדה</Button>
+                            <Button size="small" variant="contained" color="warning" onClick={() => openTransaction(acc.id, 'WITHDRAWAL')}>משיכה</Button>
                         </div>
 
-                        <Typography variant="subtitle2" gutterBottom>Transaction History</Typography>
+                        <Typography variant="subtitle2" gutterBottom>היסטוריית תנועות</Typography>
                         {acc.transactions && acc.transactions.length > 0 ? (
-                            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                            <table style={{ width: '100%', textAlign: 'right', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '1px solid #eee' }}>
-                                        <th style={{ padding: '8px' }}>Date</th>
-                                        <th style={{ padding: '8px' }}>Type</th>
-                                        <th style={{ padding: '8px' }}>Amount</th>
+                                        <th style={{ padding: '8px' }}>תאריך</th>
+                                        <th style={{ padding: '8px' }}>סוג</th>
+                                        <th style={{ padding: '8px' }}>סכום</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {acc.transactions.map((tx) => (
                                         <tr key={tx.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                                            <td style={{ padding: '8px' }}>{new Date(tx.timestamp).toLocaleString()}</td>
+                                            <td style={{ padding: '8px' }}>{new Date(tx.timestamp).toLocaleString('he-IL')}</td>
                                             <td style={{ padding: '8px' }}>
                                                 <span style={{ 
                                                     color: tx.type === 'DEPOSIT' ? 'green' : 'red',
                                                     fontWeight: 'bold'
                                                 }}>
-                                                    {tx.type}
+                                                    {tx.type === 'DEPOSIT' ? 'הפקדה' : tx.type === 'WITHDRAWAL' ? 'משיכה' : 'העברה'}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '8px' }}>${Number(tx.amount).toFixed(2)}</td>
+                                            <td style={{ padding: '8px' }}>₪{Number(tx.amount).toFixed(2)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         ) : (
-                            <Typography variant="body2" color="textSecondary">No transactions yet.</Typography>
+                            <Typography variant="body2" color="textSecondary">אין תנועות.</Typography>
                         )}
                     </CardContent>
                 </Card>
@@ -147,28 +147,28 @@ const CustomerDetails: React.FC = () => {
 
       {/* New Account Dialog */}
       <Dialog open={openAccountDialog} onClose={() => setOpenAccountDialog(false)}>
-          <DialogTitle>Open New Account</DialogTitle>
+          <DialogTitle>פתיחת חשבון חדש</DialogTitle>
           <DialogContent sx={{ minWidth: 300, mt: 1 }}>
               <FormControl fullWidth>
-                  <InputLabel>Type</InputLabel>
-                  <Select value={newAccountType} label="Type" onChange={(e) => setNewAccountType(e.target.value)}>
-                      <MenuItem value="CHECKING">Checking</MenuItem>
-                      <MenuItem value="SAVINGS">Savings</MenuItem>
+                  <InputLabel>סוג</InputLabel>
+                  <Select value={newAccountType} label="סוג" onChange={(e) => setNewAccountType(e.target.value)}>
+                      <MenuItem value="CHECKING">עובר ושב</MenuItem>
+                      <MenuItem value="SAVINGS">חיסכון</MenuItem>
                   </Select>
               </FormControl>
           </DialogContent>
           <DialogActions>
-              <Button onClick={() => setOpenAccountDialog(false)}>Cancel</Button>
-              <Button onClick={handleCreateAccount} color="primary">Create</Button>
+              <Button onClick={() => setOpenAccountDialog(false)}>ביטול</Button>
+              <Button onClick={handleCreateAccount} color="primary">צור</Button>
           </DialogActions>
       </Dialog>
 
       {/* Transaction Dialog */}
       <Dialog open={openTxDialog} onClose={() => setOpenTxDialog(false)}>
-          <DialogTitle>{txData.type === 'DEPOSIT' ? 'Deposit Funds' : 'Withdraw Funds'}</DialogTitle>
+          <DialogTitle>{txData.type === 'DEPOSIT' ? 'הפקדת כספים' : 'משיכת כספים'}</DialogTitle>
           <DialogContent sx={{ minWidth: 300 }}>
               <TextField 
-                label="Amount" 
+                label="סכום" 
                 type="number" 
                 fullWidth 
                 margin="normal" 
@@ -177,8 +177,8 @@ const CustomerDetails: React.FC = () => {
               />
           </DialogContent>
           <DialogActions>
-              <Button onClick={() => setOpenTxDialog(false)}>Cancel</Button>
-              <Button onClick={handleTransaction} color="primary">Confirm</Button>
+              <Button onClick={() => setOpenTxDialog(false)}>ביטול</Button>
+              <Button onClick={handleTransaction} color="primary">אישור</Button>
           </DialogActions>
       </Dialog>
     </div>

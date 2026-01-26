@@ -4,6 +4,7 @@ import prisma from '../prisma';
 export const getBranchTransactions = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
+    console.log(`Debug: User ${user.email} Role: ${user.role} Branch: ${user.branchId}`);
     const where: any = {};
 
     if (user.role !== 'ADMIN') {

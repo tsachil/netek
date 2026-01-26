@@ -8,43 +8,43 @@ async function main() {
   // 1. Create Branches
   const headquarters = await prisma.branch.upsert({
     where: { code: 'DEFAULT' },
-    update: {},
+    update: { name: 'סניף ראשי' },
     create: {
-      name: 'Headquarters',
+      name: 'סניף ראשי',
       code: 'DEFAULT',
     },
   });
 
   const westside = await prisma.branch.upsert({
     where: { code: 'WEST' },
-    update: {},
+    update: { name: 'סניף מערב' },
     create: {
-      name: 'Westside Branch',
+      name: 'סניף מערב',
       code: 'WEST',
     },
   });
 
   console.log('✅ Branches created.');
 
-  // 2. Create Dummy Banker for Audit Logs (so transactions have a performedBy user)
+  // 2. Create Dummy Banker for Audit Logs
   const systemBanker = await prisma.user.upsert({
     where: { googleId: 'system_admin' },
     update: {},
     create: {
       googleId: 'system_admin',
       email: 'admin@bank.com',
-      name: 'System Admin',
+      name: 'מנהל מערכת',
       branchId: headquarters.id,
       role: 'MANAGER',
     },
   });
 
-  // 3. Create Customers for Headquarters (You will see these)
+  // 3. Create Customers for Headquarters
   const customersData = [
-    { name: 'Alice Freeman', email: 'alice@example.com', phone: '555-0101' },
-    { name: 'Bob Smith', email: 'bob@example.com', phone: '555-0102' },
-    { name: 'Charlie Davis', email: 'charlie@example.com', phone: '555-0103' },
-    { name: 'Diana Prince', email: 'diana@example.com', phone: '555-0104' },
+    { name: 'ישראל ישראלי', email: 'israel@example.com', phone: '050-1234567' },
+    { name: 'שרה כהן', email: 'sara@example.com', phone: '052-7654321' },
+    { name: 'דוד לוי', email: 'david@example.com', phone: '054-1112222' },
+    { name: 'רחל אהרוני', email: 'rachel@example.com', phone: '053-3334444' },
   ];
 
   for (const c of customersData) {
@@ -78,10 +78,10 @@ async function main() {
     console.log(`Created customer: ${customer.name} (HQ)`);
   }
 
-  // 4. Create Customers for Westside (You should NOT see these)
+  // 4. Create Customers for Westside
   const westsideCustomers = [
-    { name: 'Eve Rogue', email: 'eve@westside.com', phone: '555-0201' },
-    { name: 'Frank Castle', email: 'frank@westside.com', phone: '555-0202' },
+    { name: 'יוסי מזרחי', email: 'yossi@westside.com', phone: '055-5555555' },
+    { name: 'מיכל ששון', email: 'michal@westside.com', phone: '058-8888888' },
   ];
 
   for (const c of westsideCustomers) {

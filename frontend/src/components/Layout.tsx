@@ -11,19 +11,19 @@ const Layout: React.FC = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Banker Dashboard
+            לוח בקרה בנקאי
           </Typography>
           {user && (
             <Box display="flex" alignItems="center" gap={2}>
-              <Button color="inherit" onClick={() => window.location.href='/dashboard'}>Customers</Button>
-              <Button color="inherit" onClick={() => window.location.href='/transactions'}>Transactions</Button>
+              <Button color="inherit" onClick={() => window.location.href='/dashboard'}>לקוחות</Button>
+              <Button color="inherit" onClick={() => window.location.href='/transactions'}>תנועות</Button>
               {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
-                  <Button color="inherit" onClick={() => window.location.href='/admin'}>Admin</Button>
+                  <Button color="inherit" onClick={() => window.location.href='/admin'}>ניהול</Button>
               )}
               <Typography variant="body1">
                 {user.name} ({user.role})
               </Typography>
-              <Button color="inherit" onClick={logout}>Logout</Button>
+              <Button color="inherit" onClick={logout}>יציאה</Button>
             </Box>
           )}
         </Toolbar>

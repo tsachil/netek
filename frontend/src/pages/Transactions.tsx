@@ -108,10 +108,10 @@ const Transactions: React.FC = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
-        <Typography variant="h4">Branch Transactions (Last 100)</Typography>
+        <Typography variant="h4">תנועות הסניף (100 אחרונות)</Typography>
         <TextField 
             size="small" 
-            label="Search Transactions" 
+            label="חיפוש תנועות" 
             variant="outlined" 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -127,7 +127,7 @@ const Transactions: React.FC = () => {
                     direction={sortConfig.key === 'timestamp' ? sortConfig.direction : 'asc'} 
                     onClick={() => handleRequestSort('timestamp')}
                   >
-                      Date
+                      תאריך
                   </TableSortLabel>
               </TableCell>
               <TableCell>
@@ -136,7 +136,7 @@ const Transactions: React.FC = () => {
                     direction={sortConfig.key === 'customer' ? sortConfig.direction : 'asc'} 
                     onClick={() => handleRequestSort('customer')}
                   >
-                      Customer
+                      לקוח
                   </TableSortLabel>
               </TableCell>
               <TableCell>
@@ -145,7 +145,7 @@ const Transactions: React.FC = () => {
                     direction={sortConfig.key === 'type' ? sortConfig.direction : 'asc'} 
                     onClick={() => handleRequestSort('type')}
                   >
-                      Type
+                      סוג
                   </TableSortLabel>
               </TableCell>
               <TableCell>
@@ -154,7 +154,7 @@ const Transactions: React.FC = () => {
                     direction={sortConfig.key === 'amount' ? sortConfig.direction : 'asc'} 
                     onClick={() => handleRequestSort('amount')}
                   >
-                      Amount
+                      סכום
                   </TableSortLabel>
               </TableCell>
               <TableCell>
@@ -163,7 +163,7 @@ const Transactions: React.FC = () => {
                     direction={sortConfig.key === 'banker' ? sortConfig.direction : 'asc'} 
                     onClick={() => handleRequestSort('banker')}
                   >
-                      Banker
+                      בנקאי
                   </TableSortLabel>
               </TableCell>
             </TableRow>
@@ -171,15 +171,15 @@ const Transactions: React.FC = () => {
           <TableBody>
             {processedTransactions.map((tx) => (
               <TableRow key={tx.id}>
-                <TableCell>{new Date(tx.timestamp).toLocaleString()}</TableCell>
+                <TableCell>{new Date(tx.timestamp).toLocaleString('he-IL')}</TableCell>
                 <TableCell>{tx.account.customer.name}</TableCell>
                 <TableCell>
                     <span style={{ color: tx.type === 'DEPOSIT' ? 'green' : 'red', fontWeight: 'bold' }}>
-                        {tx.type}
+                        {tx.type === 'DEPOSIT' ? 'הפקדה' : tx.type === 'WITHDRAWAL' ? 'משיכה' : 'העברה'}
                     </span>
                 </TableCell>
-                <TableCell>${Number(tx.amount).toFixed(2)}</TableCell>
-                <TableCell>{tx.user?.name || 'System'}</TableCell>
+                <TableCell>₪{Number(tx.amount).toFixed(2)}</TableCell>
+                <TableCell>{tx.user?.name || 'מערכת'}</TableCell>
               </TableRow>
             ))}
           </TableBody>
