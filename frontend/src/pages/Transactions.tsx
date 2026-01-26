@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@mui/material';
 import api from '../api/axios';
 
 interface Transaction {
@@ -19,12 +19,15 @@ interface Transaction {
 
 const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const res = await api.get('/transactions');
         setTransactions(res.data);
+        setFilteredTransactions(res.data);
       } catch (err) {
         console.error(err);
       }
@@ -32,9 +35,29 @@ const Transactions: React.FC = () => {
     fetchTransactions();
   }, []);
 
+  useEffect(() => {
+      const lower = searchTerm.toLowerCase();
+      setFilteredTransactions(transactions.filter(tx => 
+          tx.account.customer.name.toLowerCase().includes(lower) ||
+          tx.type.toLowerCase().includes(lower) ||
+          tx.user?.name.toLowerCase().includes(lower) ||
+          Number(tx.amount).toString().includes(lower) ||
+          new Date(tx.timestamp).toLocaleString().toLowerCase().includes(lower)
+      ));
+  }, [searchTerm, transactions]);
+
   return (
     <div>
-      <Typography variant="h4" gutterBottom>Branch Transactions (Last 100)</Typography>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
+        <Typography variant="h4">Branch Transactions (Last 100)</Typography>
+        <TextField 
+            size="small" 
+            label="Search Transactions" 
+            variant="outlined" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -47,7 +70,7 @@ const Transactions: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.map((tx) => (
+            {filteredTransactions.map((tx) => (
               <TableRow key={tx.id}>
                 <TableCell>{new Date(tx.timestamp).toLocaleString()}</TableCell>
                 <TableCell>{tx.account.customer.name}</TableCell>

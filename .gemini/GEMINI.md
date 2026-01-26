@@ -10,3 +10,4 @@
 - Always run `docker-compose up --build` after dependency changes.
 - Backend migrations must run via `npx prisma migrate deploy` in the container.
 - Always push code to the remote GitHub repository after every codebase change.
+- **Regression Testing:** Always run complete frontend and backend tests (`cd backend && npm test`, `cd frontend && npm test`) before building Docker images or committing changes to the remote repository.

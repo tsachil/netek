@@ -15,6 +15,8 @@ interface Customer {
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', phone: '' });
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ const Dashboard: React.FC = () => {
     try {
       const res = await api.get('/customers');
       setCustomers(res.data);
+      setFilteredCustomers(res.data);
     } catch (err) {
       console.error(err);
     }
@@ -31,6 +34,15 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
+
+  useEffect(() => {
+    const lower = searchTerm.toLowerCase();
+    setFilteredCustomers(customers.filter(c => 
+        c.name.toLowerCase().includes(lower) || 
+        c.email?.toLowerCase().includes(lower) || 
+        c.phone?.includes(lower)
+    ));
+  }, [searchTerm, customers]);
 
   const handleCreate = async () => {
     try {
@@ -45,9 +57,18 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
         <Typography variant="h4">Branch Customers</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>Add Customer</Button>
+        <div style={{ display: 'flex', gap: '20px' }}>
+            <TextField 
+                size="small" 
+                label="Search Customers" 
+                variant="outlined" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button variant="contained" onClick={() => setOpen(true)}>Add Customer</Button>
+        </div>
       </div>
 
       <TableContainer component={Paper}>
@@ -61,7 +82,7 @@ const Dashboard: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {customers.map((c) => (
+            {filteredCustomers.map((c) => (
               <TableRow key={c.id}>
                 <TableCell>{c.name}</TableCell>
                 <TableCell>{c.email}</TableCell>
