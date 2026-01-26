@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CustomerDetails from './pages/CustomerDetails';
+import Transactions from './pages/Transactions';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -28,6 +29,11 @@ function App() {
             <Route path="/customers/:id" element={
               <ProtectedRoute>
                 <CustomerDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/transactions" element={
+              <ProtectedRoute>
+                <Transactions />
               </ProtectedRoute>
             } />
              <Route path="/" element={<Navigate to="/dashboard" />} />

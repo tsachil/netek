@@ -15,6 +15,8 @@ const Layout: React.FC = () => {
           </Typography>
           {user && (
             <Box display="flex" alignItems="center" gap={2}>
+              <Button color="inherit" onClick={() => window.location.href='/dashboard'}>Customers</Button>
+              <Button color="inherit" onClick={() => window.location.href='/transactions'}>Transactions</Button>
               <Typography variant="body1">
                 {user.name} ({user.role})
               </Typography>

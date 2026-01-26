@@ -81,6 +81,8 @@ const CustomerDetails: React.FC = () => {
 
   return (
     <div>
+      <Button variant="outlined" onClick={() => window.history.back()} style={{ marginBottom: '20px' }}>&larr; Back to Dashboard</Button>
+      
       <Typography variant="h4" gutterBottom>{customer.name}</Typography>
       <Typography variant="body1">Email: {customer.email}</Typography>
       <Typography variant="body1" gutterBottom>Phone: {customer.phone}</Typography>
@@ -91,15 +93,52 @@ const CustomerDetails: React.FC = () => {
 
       <Grid container spacing={3}>
         {customer.accounts?.map((acc) => (
-            <Grid item xs={12} md={6} key={acc.id}>
+            <Grid item xs={12} key={acc.id}>
                 <Card>
                     <CardContent>
-                        <Typography variant="h6">{acc.type} Account</Typography>
-                        <Typography variant="h4">${Number(acc.balance).toFixed(2)}</Typography>
-                        <div style={{ marginTop: '10px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                            <div>
+                                <Typography variant="h6">{acc.type} Account</Typography>
+                                <Typography color="textSecondary" variant="body2">ID: {acc.id}</Typography>
+                            </div>
+                            <Typography variant="h4">${Number(acc.balance).toFixed(2)}</Typography>
+                        </div>
+                        
+                        <div style={{ marginBottom: '20px' }}>
                             <Button size="small" variant="contained" color="success" style={{ marginRight: '10px' }} onClick={() => openTransaction(acc.id, 'DEPOSIT')}>Deposit</Button>
                             <Button size="small" variant="contained" color="warning" onClick={() => openTransaction(acc.id, 'WITHDRAWAL')}>Withdraw</Button>
                         </div>
+
+                        <Typography variant="subtitle2" gutterBottom>Transaction History</Typography>
+                        {acc.transactions && acc.transactions.length > 0 ? (
+                            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid #eee' }}>
+                                        <th style={{ padding: '8px' }}>Date</th>
+                                        <th style={{ padding: '8px' }}>Type</th>
+                                        <th style={{ padding: '8px' }}>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {acc.transactions.map((tx) => (
+                                        <tr key={tx.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                                            <td style={{ padding: '8px' }}>{new Date(tx.timestamp).toLocaleString()}</td>
+                                            <td style={{ padding: '8px' }}>
+                                                <span style={{ 
+                                                    color: tx.type === 'DEPOSIT' ? 'green' : 'red',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    {tx.type}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '8px' }}>${Number(tx.amount).toFixed(2)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <Typography variant="body2" color="textSecondary">No transactions yet.</Typography>
+                        )}
                     </CardContent>
                 </Card>
             </Grid>

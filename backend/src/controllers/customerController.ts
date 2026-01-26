@@ -42,11 +42,19 @@ export const createCustomer = async (req: Request, res: Response) => {
 export const getCustomerById = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const customer = await prisma.customer.findUnique({
       where: { id },
-      include: { accounts: true },
+      include: { 
+        accounts: {
+          include: {
+            transactions: {
+              orderBy: { timestamp: 'desc' }
+            }
+          }
+        } 
+      },
     });
 
     if (!customer) {

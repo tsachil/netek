@@ -19,8 +19,8 @@ A secure, containerized banking application for managing customer accounts and t
    - Go to Google Cloud Console.
    - Create a project and configure OAuth consent screen.
    - Create OAuth 2.0 Client ID (Web Application).
-   - **Authorized JavaScript origins:** `http://localhost:5173`
-   - **Authorized redirect URIs:** `http://localhost:5000/auth/google/callback`
+   - **Authorized JavaScript origins:** `http://localhost:3030`
+   - **Authorized redirect URIs:** `http://localhost:8080/auth/google/callback`
    - Copy Client ID and Client Secret.
 
 2. **Configure Environment:**
@@ -37,8 +37,8 @@ This will spin up the Database, Backend, and Frontend containers.
 docker-compose up --build
 ```
 
-- **Frontend:** [http://localhost:5173](http://localhost:5173)
-- **Backend API:** [http://localhost:5000](http://localhost:5000)
+- **Frontend:** [http://localhost:3030](http://localhost:3030)
+- **Backend API:** [http://localhost:8080](http://localhost:8080)
 
 ### Option 2: Local Development
 If you want to run services individually without Docker (except DB).

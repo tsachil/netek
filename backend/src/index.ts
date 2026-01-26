@@ -7,6 +7,7 @@ import './config/passport'; // Import passport config
 import authRoutes from './routes/auth';
 import customerRoutes from './routes/customers';
 import accountRoutes from './routes/accounts';
+import transactionRoutes from './routes/transactions';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow frontend
+  origin: 'http://localhost:3030', // Allow frontend
   credentials: true
 }));
 app.use(express.json());
@@ -32,6 +33,7 @@ app.use(passport.session());
 app.use('/auth', authRoutes);
 app.use('/customers', customerRoutes);
 app.use('/accounts', accountRoutes);
+app.use('/transactions', transactionRoutes);
 
 app.get('/', (req, res) => {
   res.send('Banker Dashboard API is running');

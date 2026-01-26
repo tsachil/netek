@@ -37,7 +37,7 @@ export const createAccount = async (req: Request, res: Response) => {
 export const performTransaction = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
-    const { id } = req.params; // Account ID
+    const id = req.params.id as string; // Account ID
     const { amount, type } = req.body; // type: DEPOSIT, WITHDRAWAL
 
     // Validate input

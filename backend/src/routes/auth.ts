@@ -9,7 +9,7 @@ router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
-    res.redirect('http://localhost:5173/dashboard');
+    res.redirect('http://localhost:3030/dashboard');
   }
 );
 
