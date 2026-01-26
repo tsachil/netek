@@ -63,6 +63,20 @@ If you want to run services individually without Docker (except DB).
    npm run dev
    ```
 
+## Backup & Restore
+
+### Backup
+Run the backup script to create a gzip-compressed SQL dump in the `backups/` directory.
+```bash
+./scripts/backup.sh
+```
+
+### Restore
+To restore from a backup file (Warning: Overwrites current data):
+```bash
+./scripts/restore.sh backups/backup_20230101_120000.sql.gz
+```
+
 ## Features
 - **Login:** Secure sign-in with Google.
 - **RBAC:** Bankers are assigned to a branch (automatically 'DEFAULT' for new users) and can only see customers of that branch.
