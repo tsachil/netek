@@ -65,4 +65,45 @@ describe('Transactions Page', () => {
         expect(screen.getByText('Alice')).toBeInTheDocument();
         expect(screen.queryByText('Bob')).not.toBeInTheDocument();
     });
+
+    test('sorts transactions by amount', async () => {
+        const mockTransactions = [
+            { 
+                id: 'tx1', amount: 100, type: 'DEPOSIT', timestamp: new Date().toISOString(),
+                account: { customer: { name: 'A' } }, user: { name: 'Banker' }
+            },
+            { 
+                id: 'tx2', amount: 300, type: 'DEPOSIT', timestamp: new Date().toISOString(),
+                account: { customer: { name: 'B' } }, user: { name: 'Banker' }
+            },
+            { 
+                id: 'tx3', amount: 200, type: 'DEPOSIT', timestamp: new Date().toISOString(),
+                account: { customer: { name: 'C' } }, user: { name: 'Banker' }
+            }
+        ];
+        (api.get as any).mockResolvedValue({ data: mockTransactions });
+
+        renderWithAuth(<Transactions />);
+
+        await waitFor(() => {
+            expect(screen.getByText('$100.00')).toBeInTheDocument();
+        });
+
+        const amountHeader = screen.getByText('Amount');
+        fireEvent.click(amountHeader); // Sort ASC
+
+        const rows = screen.getAllByRole('row');
+        // Row 0 is header. Rows 1, 2, 3 are data.
+        // Expected ASC: 100, 200, 300
+        expect(rows[1]).toHaveTextContent('$100.00');
+        expect(rows[2]).toHaveTextContent('$200.00');
+        expect(rows[3]).toHaveTextContent('$300.00');
+
+        fireEvent.click(amountHeader); // Sort DESC
+        // Expected DESC: 300, 200, 100
+        const rowsDesc = screen.getAllByRole('row');
+        expect(rowsDesc[1]).toHaveTextContent('$300.00');
+        expect(rowsDesc[2]).toHaveTextContent('$200.00');
+        expect(rowsDesc[3]).toHaveTextContent('$100.00');
+    });
 });

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@mui/material';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, TableSortLabel } from '@mui/material';
 import api from '../api/axios';
 
 interface Transaction {
@@ -17,17 +17,23 @@ interface Transaction {
     };
 }
 
+type Order = 'asc' | 'desc';
+
+interface SortConfig {
+    key: string;
+    direction: Order;
+}
+
 const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'timestamp', direction: 'desc' });
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const res = await api.get('/transactions');
         setTransactions(res.data);
-        setFilteredTransactions(res.data);
       } catch (err) {
         console.error(err);
       }
@@ -35,16 +41,69 @@ const Transactions: React.FC = () => {
     fetchTransactions();
   }, []);
 
-  useEffect(() => {
-      const lower = searchTerm.toLowerCase();
-      setFilteredTransactions(transactions.filter(tx => 
-          tx.account.customer.name.toLowerCase().includes(lower) ||
-          tx.type.toLowerCase().includes(lower) ||
-          tx.user?.name.toLowerCase().includes(lower) ||
-          Number(tx.amount).toString().includes(lower) ||
-          new Date(tx.timestamp).toLocaleString().toLowerCase().includes(lower)
-      ));
-  }, [searchTerm, transactions]);
+  const processedTransactions = useMemo(() => {
+    let data = [...transactions];
+
+    // Filter
+    if (searchTerm) {
+        const lower = searchTerm.toLowerCase();
+        data = data.filter(tx => 
+            tx.account.customer.name.toLowerCase().includes(lower) ||
+            tx.type.toLowerCase().includes(lower) ||
+            tx.user?.name.toLowerCase().includes(lower) ||
+            Number(tx.amount).toString().includes(lower) ||
+            new Date(tx.timestamp).toLocaleString().toLowerCase().includes(lower)
+        );
+    }
+
+    // Sort
+    if (sortConfig.key) {
+        data.sort((a, b) => {
+            let aValue: any = '';
+            let bValue: any = '';
+
+            switch (sortConfig.key) {
+                case 'timestamp':
+                    aValue = new Date(a.timestamp).getTime();
+                    bValue = new Date(b.timestamp).getTime();
+                    break;
+                case 'customer':
+                    aValue = a.account.customer.name.toLowerCase();
+                    bValue = b.account.customer.name.toLowerCase();
+                    break;
+                case 'type':
+                    aValue = a.type.toLowerCase();
+                    bValue = b.type.toLowerCase();
+                    break;
+                case 'amount':
+                    aValue = Number(a.amount);
+                    bValue = Number(b.amount);
+                    break;
+                case 'banker':
+                    aValue = (a.user?.name || '').toLowerCase();
+                    bValue = (b.user?.name || '').toLowerCase();
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (aValue < bValue) {
+                return sortConfig.direction === 'asc' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return sortConfig.direction === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+
+    return data;
+  }, [transactions, searchTerm, sortConfig]);
+
+  const handleRequestSort = (property: string) => {
+    const isAsc = sortConfig.key === property && sortConfig.direction === 'asc';
+    setSortConfig({ key: property, direction: isAsc ? 'desc' : 'asc' });
+  };
 
   return (
     <div>
@@ -62,15 +121,55 @@ const Transactions: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Banker</TableCell>
+              <TableCell>
+                  <TableSortLabel 
+                    active={sortConfig.key === 'timestamp'} 
+                    direction={sortConfig.key === 'timestamp' ? sortConfig.direction : 'asc'} 
+                    onClick={() => handleRequestSort('timestamp')}
+                  >
+                      Date
+                  </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                  <TableSortLabel 
+                    active={sortConfig.key === 'customer'} 
+                    direction={sortConfig.key === 'customer' ? sortConfig.direction : 'asc'} 
+                    onClick={() => handleRequestSort('customer')}
+                  >
+                      Customer
+                  </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                  <TableSortLabel 
+                    active={sortConfig.key === 'type'} 
+                    direction={sortConfig.key === 'type' ? sortConfig.direction : 'asc'} 
+                    onClick={() => handleRequestSort('type')}
+                  >
+                      Type
+                  </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                  <TableSortLabel 
+                    active={sortConfig.key === 'amount'} 
+                    direction={sortConfig.key === 'amount' ? sortConfig.direction : 'asc'} 
+                    onClick={() => handleRequestSort('amount')}
+                  >
+                      Amount
+                  </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                  <TableSortLabel 
+                    active={sortConfig.key === 'banker'} 
+                    direction={sortConfig.key === 'banker' ? sortConfig.direction : 'asc'} 
+                    onClick={() => handleRequestSort('banker')}
+                  >
+                      Banker
+                  </TableSortLabel>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredTransactions.map((tx) => (
+            {processedTransactions.map((tx) => (
               <TableRow key={tx.id}>
                 <TableCell>{new Date(tx.timestamp).toLocaleString()}</TableCell>
                 <TableCell>{tx.account.customer.name}</TableCell>
