@@ -75,3 +75,9 @@ model Transaction {
   user        User            @relation(fields: [performedBy], references: [id])
   timestamp   DateTime        @default(now())
 }
+
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime
+}

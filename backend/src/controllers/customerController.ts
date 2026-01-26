@@ -33,7 +33,7 @@ export const createCustomer = async (req: Request, res: Response) => {
     // Validate Input
     const validation = createCustomerSchema.safeParse(req.body);
     if (!validation.success) {
-        return res.status(400).json({ message: 'Invalid Input', errors: validation.error.errors });
+        return res.status(400).json({ message: 'Invalid Input', errors: validation.error.issues });
     }
 
     const { name, email, phone } = validation.data;
