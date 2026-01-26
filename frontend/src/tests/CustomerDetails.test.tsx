@@ -36,8 +36,8 @@ describe('CustomerDetails Page', () => {
         await waitFor(() => {
             expect(screen.getByText('Jane Doe')).toBeInTheDocument();
             expect(screen.getByText(/jane@example.com/)).toBeInTheDocument();
-            expect(screen.getByText('CHECKING Account')).toBeInTheDocument();
-            expect(screen.getByText('$1000.00')).toBeInTheDocument();
+            expect(screen.getByText('עובר ושב')).toBeInTheDocument();
+            expect(screen.getByText('₪1000.00')).toBeInTheDocument();
         });
     });
 
@@ -53,9 +53,9 @@ describe('CustomerDetails Page', () => {
 
         await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument());
 
-        fireEvent.click(screen.getByText('Open New Account'));
+        fireEvent.click(screen.getByText('פתח חשבון חדש'));
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
-        expect(screen.getByText('Create')).toBeInTheDocument();
+        expect(screen.getByText('צור')).toBeInTheDocument();
     });
 });

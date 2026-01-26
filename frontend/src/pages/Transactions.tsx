@@ -47,13 +47,15 @@ const Transactions: React.FC = () => {
     // Filter
     if (searchTerm) {
         const lower = searchTerm.toLowerCase();
-        data = data.filter(tx => 
-            tx.account.customer.name.toLowerCase().includes(lower) ||
-            tx.type.toLowerCase().includes(lower) ||
-            tx.user?.name.toLowerCase().includes(lower) ||
-            Number(tx.amount).toString().includes(lower) ||
-            new Date(tx.timestamp).toLocaleString().toLowerCase().includes(lower)
-        );
+        data = data.filter(tx => {
+            const typeLabel = tx.type === 'DEPOSIT' ? 'הפקדה' : tx.type === 'WITHDRAWAL' ? 'משיכה' : 'העברה';
+            return tx.account.customer.name.toLowerCase().includes(lower) ||
+                   typeLabel.includes(lower) ||
+                   tx.type.toLowerCase().includes(lower) ||
+                   tx.user?.name.toLowerCase().includes(lower) ||
+                   Number(tx.amount).toString().includes(lower) ||
+                   new Date(tx.timestamp).toLocaleString('he-IL').toLowerCase().includes(lower);
+        });
     }
 
     // Sort

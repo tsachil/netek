@@ -24,6 +24,38 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Arial, sans-serif',
   },
+  palette: {
+    primary: {
+      main: '#007C21', // Discount Bank Green
+      light: '#4CB050',
+      dark: '#004D00',
+      contrastText: '#ffffff',
+    },
+    secondary: {
+      main: '#9CCC65', // Light Green accent
+      contrastText: '#000000',
+    },
+    background: {
+      default: '#F5F5F5',
+      paper: '#ffffff',
+    },
+  },
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#007C21', // Explicitly set AppBar color
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '20px', // Rounded buttons for modern look
+        },
+      },
+    },
+  },
 });
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -8,15 +8,15 @@ describe('Login Page', () => {
     test('renders sign in button', () => {
         // Mock not authenticated
         renderWithAuth(<Login />, { user: null, loading: false, login: vi.fn(), logout: vi.fn() });
-        expect(screen.getByText(/Banker's Daily/i)).toBeInTheDocument();
-        expect(screen.getByText(/Sign in with Google/i)).toBeInTheDocument();
+        expect(screen.getByText(/הבנק שלי/i)).toBeInTheDocument();
+        expect(screen.getByText(/התחברות עם גוגל/i)).toBeInTheDocument();
     });
 
     test('calls login on button click', () => {
         const loginMock = vi.fn();
         renderWithAuth(<Login />, { user: null, loading: false, login: loginMock, logout: vi.fn() });
         
-        fireEvent.click(screen.getByText(/Sign in with Google/i));
+        fireEvent.click(screen.getByText(/התחברות עם גוגל/i));
         expect(loginMock).toHaveBeenCalled();
     });
 });

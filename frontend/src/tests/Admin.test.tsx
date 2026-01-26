@@ -33,10 +33,10 @@ describe('Admin Page', () => {
         });
 
         // Open edit
-        fireEvent.click(screen.getByText('Edit'));
+        fireEvent.click(screen.getByText('עריכה'));
         
         await waitFor(() => {
-            expect(screen.getByText('Edit User: Alice')).toBeInTheDocument();
+            expect(screen.getByText('עריכת משתמש: Alice')).toBeInTheDocument();
         });
     });
 });

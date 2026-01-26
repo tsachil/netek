@@ -24,12 +24,12 @@ describe('Transactions Page', () => {
 
         renderWithAuth(<Transactions />);
 
-        expect(screen.getByText(/Branch Transactions/i)).toBeInTheDocument();
+        expect(screen.getByText(/תנועות הסניף/i)).toBeInTheDocument();
         
         await waitFor(() => {
             expect(screen.getByText('Alice')).toBeInTheDocument();
-            expect(screen.getByText('DEPOSIT')).toBeInTheDocument();
-            expect(screen.getByText('$500.00')).toBeInTheDocument();
+            expect(screen.getByText('הפקדה')).toBeInTheDocument();
+            expect(screen.getByText('₪500.00')).toBeInTheDocument();
             expect(screen.getByText('Banker Bob')).toBeInTheDocument();
         });
     });
@@ -55,12 +55,12 @@ describe('Transactions Page', () => {
         });
 
         // Filter for "Alice"
-        fireEvent.change(screen.getByLabelText(/Search Transactions/i), { target: { value: 'Alice' } });
+        fireEvent.change(screen.getByLabelText(/חיפוש תנועות/i), { target: { value: 'Alice' } });
 
         expect(screen.getByText('Alice')).toBeInTheDocument(); 
         
-        // Filter by "DEPOSIT"
-        fireEvent.change(screen.getByLabelText(/Search Transactions/i), { target: { value: 'DEPOSIT' } });
+        // Filter by "הפקדה" (DEPOSIT)
+        fireEvent.change(screen.getByLabelText(/חיפוש תנועות/i), { target: { value: 'הפקדה' } });
         
         expect(screen.getByText('Alice')).toBeInTheDocument();
         expect(screen.queryByText('Bob')).not.toBeInTheDocument();
@@ -86,24 +86,22 @@ describe('Transactions Page', () => {
         renderWithAuth(<Transactions />);
 
         await waitFor(() => {
-            expect(screen.getByText('$100.00')).toBeInTheDocument();
+            expect(screen.getByText('₪100.00')).toBeInTheDocument();
         });
 
-        const amountHeader = screen.getByText('Amount');
+        const amountHeader = screen.getByText('סכום');
         fireEvent.click(amountHeader); // Sort ASC
 
         const rows = screen.getAllByRole('row');
         // Row 0 is header. Rows 1, 2, 3 are data.
-        // Expected ASC: 100, 200, 300
-        expect(rows[1]).toHaveTextContent('$100.00');
-        expect(rows[2]).toHaveTextContent('$200.00');
-        expect(rows[3]).toHaveTextContent('$300.00');
+        expect(rows[1]).toHaveTextContent('₪100.00');
+        expect(rows[2]).toHaveTextContent('₪200.00');
+        expect(rows[3]).toHaveTextContent('₪300.00');
 
         fireEvent.click(amountHeader); // Sort DESC
-        // Expected DESC: 300, 200, 100
         const rowsDesc = screen.getAllByRole('row');
-        expect(rowsDesc[1]).toHaveTextContent('$300.00');
-        expect(rowsDesc[2]).toHaveTextContent('$200.00');
-        expect(rowsDesc[3]).toHaveTextContent('$100.00');
+        expect(rowsDesc[1]).toHaveTextContent('₪300.00');
+        expect(rowsDesc[2]).toHaveTextContent('₪200.00');
+        expect(rowsDesc[3]).toHaveTextContent('₪100.00');
     });
 });

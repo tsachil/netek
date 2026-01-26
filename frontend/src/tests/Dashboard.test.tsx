@@ -17,7 +17,7 @@ describe('Dashboard Page', () => {
 
         renderWithAuth(<Dashboard />);
 
-        expect(screen.getByText(/Branch Customers/i)).toBeInTheDocument();
+        expect(screen.getByText(/לקוחות הסניף/i)).toBeInTheDocument();
         
         await waitFor(() => {
             expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe('Dashboard Page', () => {
         });
 
         // Filter for "John"
-        fireEvent.change(screen.getByLabelText(/Search Customers/i), { target: { value: 'John' } });
+        fireEvent.change(screen.getByLabelText(/חיפוש לקוחות/i), { target: { value: 'John' } });
 
         expect(screen.getByText('John Doe')).toBeInTheDocument();
         expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
@@ -49,6 +49,6 @@ describe('Dashboard Page', () => {
     test('renders add customer button', () => {
         (api.get as any).mockResolvedValue({ data: [] });
         renderWithAuth(<Dashboard />);
-        expect(screen.getByText(/Add Customer/i)).toBeInTheDocument();
+        expect(screen.getByText(/הוסף לקוח/i)).toBeInTheDocument();
     });
 });
