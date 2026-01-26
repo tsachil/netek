@@ -17,6 +17,9 @@ const Layout: React.FC = () => {
             <Box display="flex" alignItems="center" gap={2}>
               <Button color="inherit" onClick={() => window.location.href='/dashboard'}>Customers</Button>
               <Button color="inherit" onClick={() => window.location.href='/transactions'}>Transactions</Button>
+              {(user.role === 'MANAGER' || user.role === 'ADMIN') && (
+                  <Button color="inherit" onClick={() => window.location.href='/admin'}>Admin</Button>
+              )}
               <Typography variant="body1">
                 {user.name} ({user.role})
               </Typography>
