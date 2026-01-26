@@ -27,6 +27,12 @@ passport.use(
         const email = profile.emails?.[0].value;
         if (!email) return done(new Error('No email found'), undefined);
 
+        // Security: Restrict new user registration to specific domains
+        // const allowedDomain = process.env.ALLOWED_DOMAIN; // e.g., 'bank.com'
+        // if (allowedDomain && !email.endsWith(`@${allowedDomain}`)) {
+        //     return done(new Error('Unauthorized email domain'), undefined);
+        // }
+
         let user = await prisma.user.findUnique({
           where: { googleId: profile.id },
         });
