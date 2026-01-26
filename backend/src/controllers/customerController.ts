@@ -1,5 +1,12 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
+import { z } from 'zod';
+
+const createCustomerSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().min(5),
+});
 
 export const getCustomers = async (req: Request, res: Response) => {
   try {
@@ -14,14 +21,22 @@ export const getCustomers = async (req: Request, res: Response) => {
     });
     res.json(customers);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching customers', error });
+    console.error('getCustomers Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
 export const createCustomer = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
-    const { name, email, phone } = req.body;
+    
+    // Validate Input
+    const validation = createCustomerSchema.safeParse(req.body);
+    if (!validation.success) {
+        return res.status(400).json({ message: 'Invalid Input', errors: validation.error.errors });
+    }
+
+    const { name, email, phone } = validation.data;
 
     const customer = await prisma.customer.create({
       data: {
@@ -33,7 +48,8 @@ export const createCustomer = async (req: Request, res: Response) => {
     });
     res.status(201).json(customer);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating customer', error });
+    console.error('createCustomer Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
@@ -65,6 +81,7 @@ export const getCustomerById = async (req: Request, res: Response) => {
 
     res.json(customer);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching customer', error });
+    console.error('getCustomerById Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };

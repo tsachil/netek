@@ -35,7 +35,8 @@ describe('Customer Controller', () => {
 
     test('createCustomer should create a new customer', async () => {
         const user = { branchId: 'branch1' };
-        const req = mockRequest(user, { name: 'Bob', email: 'bob@example.com', phone: '123' });
+        // Phone must be min 5 chars per Zod schema
+        const req = mockRequest(user, { name: 'Bob', email: 'bob@example.com', phone: '12345' });
         const res = mockResponse();
         const mockCustomer = { id: '2', name: 'Bob', branchId: 'branch1' };
 
@@ -47,7 +48,7 @@ describe('Customer Controller', () => {
             data: {
                 name: 'Bob',
                 email: 'bob@example.com',
-                phone: '123',
+                phone: '12345',
                 branchId: 'branch1'
             }
         });

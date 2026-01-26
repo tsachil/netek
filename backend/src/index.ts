@@ -11,6 +11,14 @@ import transactionRoutes from './routes/transactions';
 
 dotenv.config();
 
+if (!process.env.SESSION_SECRET) {
+    throw new Error('FATAL: SESSION_SECRET is not defined.');
+}
+
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    throw new Error('FATAL: Google OAuth credentials are missing.');
+}
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -21,7 +29,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // Set to true if using https

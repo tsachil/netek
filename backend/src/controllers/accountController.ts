@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
+import Decimal from 'decimal.js';
 
 export const createAccount = async (req: Request, res: Response) => {
   try {
@@ -28,18 +29,19 @@ export const createAccount = async (req: Request, res: Response) => {
     });
     res.status(201).json(account);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating account', error });
+    res.status(500).json({ message: 'Error creating account' });
   }
 };
 
 export const performTransaction = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
-    const id = req.params.id as string; // Account ID
-    const { amount, type } = req.body; // type: DEPOSIT, WITHDRAWAL
+    const id = req.params.id as string; 
+    const { amount, type } = req.body; 
 
-    // Validate input
-    if (amount <= 0) {
+    const txAmount = new Decimal(amount);
+
+    if (txAmount.lessThanOrEqualTo(0)) {
         return res.status(400).json({ message: 'Amount must be positive' });
     }
 
@@ -56,26 +58,28 @@ export const performTransaction = async (req: Request, res: Response) => {
         return res.status(403).json({ message: 'Forbidden' });
     }
 
-    if (type === 'WITHDRAWAL' && Number(account.balance) < Number(amount)) {
+    const currentBalance = new Decimal(account.balance.toString());
+
+    if (type === 'WITHDRAWAL' && currentBalance.lessThan(txAmount)) {
         return res.status(400).json({ message: 'Insufficient funds' });
     }
 
     // Perform transaction atomically
     const result = await prisma.$transaction(async (tx) => {
         const newBalance = type === 'DEPOSIT' 
-            ? Number(account.balance) + Number(amount) 
-            : Number(account.balance) - Number(amount);
+            ? currentBalance.plus(txAmount)
+            : currentBalance.minus(txAmount);
 
         const updatedAccount = await tx.account.update({
             where: { id },
-            data: { balance: newBalance }
+            data: { balance: newBalance.toNumber() } // Prisma expects number/Decimal
         });
 
         const transaction = await tx.transaction.create({
             data: {
                 accountId: id,
-                amount: amount,
-                type: type, // Ensure this matches enum string exactly (DEPOSIT/WITHDRAWAL)
+                amount: txAmount.toNumber(),
+                type: type, 
                 performedBy: user.id
             }
         });
@@ -86,7 +90,7 @@ export const performTransaction = async (req: Request, res: Response) => {
     res.json(result);
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error performing transaction', error });
+    console.error('Transaction Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };

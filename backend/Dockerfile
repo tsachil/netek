@@ -14,4 +14,6 @@ RUN npx prisma generate
 
 EXPOSE 5000
 
+USER node
+
 CMD ["npm", "run", "dev"]
