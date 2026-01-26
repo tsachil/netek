@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TELLER
+  MANAGER
+  ADMIN
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+}
+
+model Branch {
+  id        String     @id @default(uuid())
+  name      String
+  code      String     @unique
+  users     User[]
+  customers Customer[]
+}
+
+model User {
+  id           String        @id @default(uuid())
+  googleId     String        @unique
+  email        String        @unique
+  name         String
+  role         Role          @default(TELLER)
+  branchId     String
+  branch       Branch        @relation(fields: [branchId], references: [id])
+  transactions Transaction[] // Audit log: which user performed the transaction
+}
+
+model Customer {
+  id           String    @id @default(uuid())
+  name         String
+  email        String?
+  phone        String?
+  branchId     String
+  branch       Branch    @relation(fields: [branchId], references: [id])
+  accounts     Account[]
+  createdAt    DateTime  @default(now())
+}
+
+model Account {
+  id           String        @id @default(uuid())
+  customerId   String
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  type         AccountType
+  balance      Decimal       @default(0.0)
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  accountId   String
+  account     Account         @relation(fields: [accountId], references: [id])
+  amount      Decimal
+  type        TransactionType
+  performedBy String
+  user        User            @relation(fields: [performedBy], references: [id])
+  timestamp   DateTime        @default(now())
+}
