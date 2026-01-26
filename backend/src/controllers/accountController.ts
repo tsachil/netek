@@ -16,7 +16,7 @@ export const createAccount = async (req: Request, res: Response) => {
         return res.status(404).json({ message: 'Customer not found' });
     }
 
-    if (customer.branchId !== user.branchId) {
+    if (user.role !== 'ADMIN' && customer.branchId !== user.branchId) {
         return res.status(403).json({ message: 'Forbidden' });
     }
 
@@ -54,7 +54,7 @@ export const performTransaction = async (req: Request, res: Response) => {
         return res.status(404).json({ message: 'Account not found' });
     }
 
-    if (account.customer.branchId !== user.branchId) {
+    if (user.role !== 'ADMIN' && account.customer.branchId !== user.branchId) {
         return res.status(403).json({ message: 'Forbidden' });
     }
 

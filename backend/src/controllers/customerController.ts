@@ -11,10 +11,14 @@ const createCustomerSchema = z.object({
 export const getCustomers = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
+    const where: any = {};
+    
+    if (user.role !== 'ADMIN') {
+        where.branchId = user.branchId;
+    }
+
     const customers = await prisma.customer.findMany({
-      where: {
-        branchId: user.branchId,
-      },
+      where,
       include: {
         accounts: true,
       }
@@ -75,7 +79,7 @@ export const getCustomerById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Customer not found' });
     }
 
-    if (customer.branchId !== user.branchId) {
+    if (user.role !== 'ADMIN' && customer.branchId !== user.branchId) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 

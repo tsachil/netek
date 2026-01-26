@@ -34,7 +34,7 @@ export const getBranches = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const validation = updateUserSchema.safeParse(req.body);
 
     if (!validation.success) {

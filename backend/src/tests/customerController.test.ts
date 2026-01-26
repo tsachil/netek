@@ -68,4 +68,17 @@ describe('Customer Controller', () => {
 
         expect(res.status).toHaveBeenCalledWith(403);
     });
+
+    test('getCustomerById should return customer if user is ADMIN even if branch differs', async () => {
+        const user = { branchId: 'branch1', role: 'ADMIN' };
+        const req = mockRequest(user, {}, { id: 'cust2' });
+        const res = mockResponse();
+        const mockCustomer = { id: 'cust2', branchId: 'branch2' };
+
+        prismaMock.customer.findUnique.mockResolvedValue(mockCustomer as any);
+
+        await getCustomerById(req, res);
+
+        expect(res.json).toHaveBeenCalledWith(mockCustomer);
+    });
 });
