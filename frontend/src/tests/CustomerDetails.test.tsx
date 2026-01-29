@@ -34,7 +34,8 @@ describe('CustomerDetails Page', () => {
         renderWithRouter(<CustomerDetails />, '/customers/1');
 
         await waitFor(() => {
-            expect(screen.getByText('Jane Doe')).toBeInTheDocument();
+            // Customer name appears in breadcrumb and heading
+            expect(screen.getAllByText('Jane Doe').length).toBeGreaterThanOrEqual(1);
             expect(screen.getByText(/jane@example.com/)).toBeInTheDocument();
             expect(screen.getByText('עובר ושב')).toBeInTheDocument();
             expect(screen.getByText('₪1000.00')).toBeInTheDocument();
@@ -51,7 +52,7 @@ describe('CustomerDetails Page', () => {
 
         renderWithRouter(<CustomerDetails />, '/customers/1');
 
-        await waitFor(() => expect(screen.getByText('Jane Doe')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getAllByText('Jane Doe').length).toBeGreaterThanOrEqual(1));
 
         fireEvent.click(screen.getByText('פתח חשבון חדש'));
 

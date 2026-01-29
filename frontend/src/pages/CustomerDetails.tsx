@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Button, Grid, Card, CardContent, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Snackbar } from '@mui/material';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Typography, Button, Grid, Card, CardContent, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Snackbar, Breadcrumbs, Link } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import PersonIcon from '@mui/icons-material/Person';
 import api from '../api/axios';
 
 interface Transaction {
@@ -127,8 +129,22 @@ const CustomerDetails: React.FC = () => {
 
   return (
     <div>
-      <Button variant="outlined" onClick={() => navigate('/')} style={{ marginBottom: '20px' }}>&rarr; חזרה ללוח הבקרה</Button>
-      
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        <Link
+          component={RouterLink}
+          to="/"
+          sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+          color="inherit"
+        >
+          <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+          לוח הבקרה
+        </Link>
+        <Typography sx={{ display: 'flex', alignItems: 'center' }} color="text.primary">
+          <PersonIcon sx={{ mr: 0.5 }} fontSize="small" />
+          {customer.name}
+        </Typography>
+      </Breadcrumbs>
+
       <Typography variant="h4" gutterBottom>{customer.name}</Typography>
       <Typography variant="body1">אימייל: {customer.email}</Typography>
       <Typography variant="body1" gutterBottom>טלפון: {customer.phone}</Typography>
