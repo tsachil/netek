@@ -191,19 +191,29 @@ const Transactions: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {processedTransactions.map((tx) => (
-              <TableRow key={tx.id}>
-                <TableCell>{new Date(tx.timestamp).toLocaleString('he-IL')}</TableCell>
-                <TableCell>{tx.account.customer.name}</TableCell>
-                <TableCell>
-                    <span style={{ color: tx.type === 'DEPOSIT' ? 'green' : 'red', fontWeight: 'bold' }}>
-                        {tx.type === 'DEPOSIT' ? 'הפקדה' : tx.type === 'WITHDRAWAL' ? 'משיכה' : 'העברה'}
-                    </span>
+            {processedTransactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                  <Typography color="textSecondary">
+                    {searchTerm ? 'לא נמצאו תנועות התואמות לחיפוש' : 'אין תנועות בסניף עדיין.'}
+                  </Typography>
                 </TableCell>
-                <TableCell>₪{Number(tx.amount).toFixed(2)}</TableCell>
-                <TableCell>{tx.user?.name || 'מערכת'}</TableCell>
               </TableRow>
-            ))}
+            ) : (
+              processedTransactions.map((tx) => (
+                <TableRow key={tx.id}>
+                  <TableCell>{new Date(tx.timestamp).toLocaleString('he-IL')}</TableCell>
+                  <TableCell>{tx.account.customer.name}</TableCell>
+                  <TableCell>
+                      <span style={{ color: tx.type === 'DEPOSIT' ? 'green' : 'red', fontWeight: 'bold' }}>
+                          {tx.type === 'DEPOSIT' ? 'הפקדה' : tx.type === 'WITHDRAWAL' ? 'משיכה' : 'העברה'}
+                      </span>
+                  </TableCell>
+                  <TableCell>₪{Number(tx.amount).toFixed(2)}</TableCell>
+                  <TableCell>{tx.user?.name || 'מערכת'}</TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

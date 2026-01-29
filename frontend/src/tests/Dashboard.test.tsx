@@ -181,12 +181,14 @@ describe('Dashboard Page', () => {
             renderWithAuth(<Dashboard />);
 
             await waitFor(() => {
-                expect(screen.getByText(/הוסף לקוח/i)).toBeInTheDocument();
+                expect(screen.getByRole('button', { name: /הוסף לקוח/i })).toBeInTheDocument();
             });
 
-            fireEvent.click(screen.getByText(/הוסף לקוח/i));
+            fireEvent.click(screen.getByRole('button', { name: /הוסף לקוח/i }));
 
-            expect(screen.getByText(/הוספת לקוח חדש/i)).toBeInTheDocument();
+            await waitFor(() => {
+                expect(screen.getByRole('dialog')).toBeInTheDocument();
+            });
         });
 
         test('closes dialog on cancel', async () => {
@@ -195,16 +197,19 @@ describe('Dashboard Page', () => {
             renderWithAuth(<Dashboard />);
 
             await waitFor(() => {
-                expect(screen.getByText(/הוסף לקוח/i)).toBeInTheDocument();
+                expect(screen.getByRole('button', { name: /הוסף לקוח/i })).toBeInTheDocument();
             });
 
-            fireEvent.click(screen.getByText(/הוסף לקוח/i));
-            expect(screen.getByText(/הוספת לקוח חדש/i)).toBeInTheDocument();
-
-            fireEvent.click(screen.getByText(/ביטול/i));
+            fireEvent.click(screen.getByRole('button', { name: /הוסף לקוח/i }));
 
             await waitFor(() => {
-                expect(screen.queryByText(/הוספת לקוח חדש/i)).not.toBeInTheDocument();
+                expect(screen.getByRole('dialog')).toBeInTheDocument();
+            });
+
+            fireEvent.click(screen.getByRole('button', { name: /ביטול/i }));
+
+            await waitFor(() => {
+                expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
             });
         });
 

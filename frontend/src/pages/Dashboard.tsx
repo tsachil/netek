@@ -109,16 +109,26 @@ const Dashboard: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredCustomers.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell>{c.name}</TableCell>
-                <TableCell>{c.email}</TableCell>
-                <TableCell>{c.accounts?.length || 0}</TableCell>
-                <TableCell>
-                    <Button onClick={() => navigate(`/customers/${c.id}`)}>צפייה</Button>
+            {filteredCustomers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                  <Typography color="textSecondary">
+                    {searchTerm ? 'לא נמצאו לקוחות התואמים לחיפוש' : 'אין לקוחות בסניף. השתמש בכפתור למעלה להוספת לקוח חדש.'}
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              filteredCustomers.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell>{c.name}</TableCell>
+                  <TableCell>{c.email}</TableCell>
+                  <TableCell>{c.accounts?.length || 0}</TableCell>
+                  <TableCell>
+                      <Button onClick={() => navigate(`/customers/${c.id}`)}>צפייה</Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

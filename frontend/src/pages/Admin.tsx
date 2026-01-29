@@ -97,17 +97,27 @@ const Admin: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((u) => (
-              <TableRow key={u.id}>
-                <TableCell>{u.name}</TableCell>
-                <TableCell>{u.email}</TableCell>
-                <TableCell>{u.role}</TableCell>
-                <TableCell>{u.branch?.name}</TableCell>
-                <TableCell>
-                    <Button onClick={() => handleEdit(u)}>עריכה</Button>
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                  <Typography color="textSecondary">
+                    אין משתמשים במערכת.
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              users.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell>{u.name}</TableCell>
+                  <TableCell>{u.email}</TableCell>
+                  <TableCell>{u.role}</TableCell>
+                  <TableCell>{u.branch?.name}</TableCell>
+                  <TableCell>
+                      <Button onClick={() => handleEdit(u)}>עריכה</Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

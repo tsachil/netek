@@ -123,8 +123,15 @@ const CustomerDetails: React.FC = () => {
         <Button variant="contained" onClick={() => setOpenAccountDialog(true)}>פתח חשבון חדש</Button>
       </div>
 
-      <Grid container spacing={3}>
-        {customer.accounts?.map((acc) => (
+      {(!customer.accounts || customer.accounts.length === 0) ? (
+        <Card sx={{ p: 4, textAlign: 'center' }}>
+          <Typography color="textSecondary">
+            אין חשבונות ללקוח זה. לחץ על "פתח חשבון חדש" לפתיחת חשבון.
+          </Typography>
+        </Card>
+      ) : (
+        <Grid container spacing={3}>
+          {customer.accounts.map((acc) => (
             <Grid item xs={12} key={acc.id}>
                 <Card>
                     <CardContent>
@@ -174,8 +181,9 @@ const CustomerDetails: React.FC = () => {
                     </CardContent>
                 </Card>
             </Grid>
-        ))}
-      </Grid>
+          ))}
+        </Grid>
+      )}
 
       {/* New Account Dialog */}
       <Dialog open={openAccountDialog} onClose={() => setOpenAccountDialog(false)}>
