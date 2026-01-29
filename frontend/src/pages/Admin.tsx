@@ -85,15 +85,15 @@ const Admin: React.FC = () => {
     <div>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Typography variant="h4" gutterBottom>ניהול משתמשים</Typography>
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+        <Table sx={{ minWidth: 600 }}>
           <TableHead>
             <TableRow>
-              <TableCell>שם</TableCell>
-              <TableCell>אימייל</TableCell>
-              <TableCell>תפקיד</TableCell>
-              <TableCell>סניף</TableCell>
-              <TableCell>פעולות</TableCell>
+              <TableCell sx={{ minWidth: 100 }}>שם</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>אימייל</TableCell>
+              <TableCell sx={{ minWidth: 80 }}>תפקיד</TableCell>
+              <TableCell sx={{ minWidth: 80 }}>סניף</TableCell>
+              <TableCell sx={{ minWidth: 80 }}>פעולות</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, CircularProgress, Alert, Snackbar } from '@mui/material';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, CircularProgress, Alert, Snackbar, Box, useMediaQuery, useTheme } from '@mui/material';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -109,28 +109,35 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        mb: 2.5,
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2
+      }}>
         <Typography variant="h4">לקוחות הסניף</Typography>
-        <div style={{ display: 'flex', gap: '20px' }}>
-            <TextField 
-                size="small" 
-                label="חיפוש לקוחות" 
-                variant="outlined" 
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <TextField
+                size="small"
+                label="חיפוש לקוחות"
+                variant="outlined"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
             <Button variant="contained" onClick={() => setOpen(true)}>הוסף לקוח</Button>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+        <Table sx={{ minWidth: 500 }}>
           <TableHead>
             <TableRow>
-              <TableCell>שם</TableCell>
-              <TableCell>אימייל</TableCell>
-              <TableCell>חשבונות</TableCell>
-              <TableCell>פעולות</TableCell>
+              <TableCell sx={{ minWidth: 120 }}>שם</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>אימייל</TableCell>
+              <TableCell sx={{ minWidth: 80 }}>חשבונות</TableCell>
+              <TableCell sx={{ minWidth: 80 }}>פעולות</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

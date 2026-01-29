@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, TableSortLabel, CircularProgress, Alert } from '@mui/material';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, TableSortLabel, CircularProgress, Alert, Box } from '@mui/material';
 import api from '../api/axios';
 
 interface Transaction {
@@ -129,8 +129,17 @@ const Transactions: React.FC = () => {
   return (
     <div>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
-        <Typography variant="h4">תנועות הסניף (100 אחרונות)</Typography>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        mb: 2.5,
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2
+      }}>
+        <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
+          תנועות הסניף (100 אחרונות)
+        </Typography>
         <TextField
             size="small"
             label="חיפוש תנועות"
@@ -138,9 +147,9 @@ const Transactions: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
         />
-      </div>
-      <TableContainer component={Paper}>
-        <Table>
+      </Box>
+      <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+        <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
               <TableCell>
