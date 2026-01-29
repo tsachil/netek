@@ -215,7 +215,7 @@ describe('Dashboard Page', () => {
 
         test('creates customer and refreshes list', async () => {
             const initialCustomers: any[] = [];
-            const newCustomer = { id: '1', name: 'New Customer', email: 'new@test.com', phone: '12345', accounts: [] };
+            const newCustomer = { id: '1', name: 'New Customer', email: 'new@test.com', phone: '050-1234567', accounts: [] };
 
             (api.get as any).mockResolvedValue({ data: initialCustomers });
             (api.post as any).mockResolvedValue({ data: newCustomer });
@@ -223,27 +223,37 @@ describe('Dashboard Page', () => {
             renderWithAuth(<Dashboard />);
 
             await waitFor(() => {
-                expect(screen.getByText(/הוסף לקוח/i)).toBeInTheDocument();
+                expect(screen.getByRole('button', { name: /הוסף לקוח/i })).toBeInTheDocument();
             });
 
-            fireEvent.click(screen.getByText(/הוסף לקוח/i));
+            fireEvent.click(screen.getByRole('button', { name: /הוסף לקוח/i }));
 
-            // Fill form
-            fireEvent.change(screen.getByLabelText(/שם/i), { target: { value: 'New Customer' } });
-            fireEvent.change(screen.getByLabelText(/אימייל/i), { target: { value: 'new@test.com' } });
-            fireEvent.change(screen.getByLabelText(/טלפון/i), { target: { value: '12345' } });
+            // Wait for dialog to open and inputs to be available
+            await waitFor(() => {
+                expect(screen.getByTestId('customer-name-input')).toBeInTheDocument();
+            });
+
+            // Fill form using data-testid with await between changes
+            const nameInput = screen.getByTestId('customer-name-input');
+            const emailInput = screen.getByTestId('customer-email-input');
+            const phoneInput = screen.getByTestId('customer-phone-input');
+
+            fireEvent.change(nameInput, { target: { value: 'New Customer' } });
+            fireEvent.change(emailInput, { target: { value: 'new@test.com' } });
+            fireEvent.change(phoneInput, { target: { value: '050-1234567' } });
 
             // Update mock for refresh
             (api.get as any).mockResolvedValue({ data: [newCustomer] });
 
-            // Submit
-            fireEvent.click(screen.getByText(/^צור$/i));
+            // Submit and verify
+            const submitButton = screen.getByRole('button', { name: /^צור$/i });
+            fireEvent.click(submitButton);
 
             await waitFor(() => {
                 expect(api.post).toHaveBeenCalledWith('/customers', {
                     name: 'New Customer',
                     email: 'new@test.com',
-                    phone: '12345'
+                    phone: '050-1234567'
                 });
             });
         });

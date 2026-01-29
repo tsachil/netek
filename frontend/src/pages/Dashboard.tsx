@@ -25,6 +25,7 @@ const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', phone: '' });
+  const [formErrors, setFormErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
@@ -61,11 +62,35 @@ const Dashboard: React.FC = () => {
     ));
   }, [searchTerm, customers]);
 
+  const validateForm = () => {
+    const errors: { name?: string; email?: string; phone?: string } = {};
+
+    if (!newCustomer.name.trim()) {
+      errors.name = 'שם הוא שדה חובה';
+    }
+
+    if (!newCustomer.email.trim()) {
+      errors.email = 'אימייל הוא שדה חובה';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newCustomer.email)) {
+      errors.email = 'כתובת אימייל לא תקינה';
+    }
+
+    if (newCustomer.phone && !/^[\d\-+() ]{7,}$/.test(newCustomer.phone)) {
+      errors.phone = 'מספר טלפון לא תקין';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleCreate = async () => {
+    if (!validateForm()) return;
+
     try {
         await api.post('/customers', newCustomer);
         setOpen(false);
         setNewCustomer({ name: '', email: '', phone: '' });
+        setFormErrors({});
         setSnackbar({ open: true, message: 'הלקוח נוצר בהצלחה', severity: 'success' });
         await fetchCustomers();
     } catch (err) {
@@ -133,15 +158,44 @@ const Dashboard: React.FC = () => {
         </Table>
       </TableContainer>
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
+      <Dialog open={open} onClose={() => { setOpen(false); setFormErrors({}); }}>
         <DialogTitle>הוספת לקוח חדש</DialogTitle>
         <DialogContent>
-            <TextField label="שם" fullWidth margin="normal" value={newCustomer.name} onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})} />
-            <TextField label="אימייל" fullWidth margin="normal" value={newCustomer.email} onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})} />
-            <TextField label="טלפון" fullWidth margin="normal" value={newCustomer.phone} onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})} />
+            <TextField
+              label="שם"
+              fullWidth
+              margin="normal"
+              value={newCustomer.name}
+              onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+              error={!!formErrors.name}
+              helperText={formErrors.name}
+              required
+              inputProps={{ 'data-testid': 'customer-name-input' }}
+            />
+            <TextField
+              label="אימייל"
+              fullWidth
+              margin="normal"
+              value={newCustomer.email}
+              onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+              error={!!formErrors.email}
+              helperText={formErrors.email}
+              required
+              inputProps={{ 'data-testid': 'customer-email-input' }}
+            />
+            <TextField
+              label="טלפון"
+              fullWidth
+              margin="normal"
+              value={newCustomer.phone}
+              onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
+              error={!!formErrors.phone}
+              helperText={formErrors.phone}
+              inputProps={{ 'data-testid': 'customer-phone-input' }}
+            />
         </DialogContent>
         <DialogActions>
-            <Button onClick={() => setOpen(false)}>ביטול</Button>
+            <Button onClick={() => { setOpen(false); setFormErrors({}); }}>ביטול</Button>
             <Button onClick={handleCreate} color="primary">צור</Button>
         </DialogActions>
       </Dialog>

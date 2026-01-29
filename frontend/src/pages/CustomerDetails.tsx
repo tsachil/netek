@@ -37,6 +37,7 @@ const CustomerDetails: React.FC = () => {
   const [newAccountType, setNewAccountType] = useState('CHECKING');
 
   const [txData, setTxData] = useState({ accountId: '', type: 'DEPOSIT', amount: '' });
+  const [amountError, setAmountError] = useState<string>('');
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   const fetchCustomer = useCallback(async (signal?: AbortSignal) => {
@@ -77,12 +78,24 @@ const CustomerDetails: React.FC = () => {
   };
 
   const handleTransaction = async () => {
+      const amount = Number(txData.amount);
+
+      if (!txData.amount || isNaN(amount)) {
+        setAmountError('יש להזין סכום');
+        return;
+      }
+      if (amount <= 0) {
+        setAmountError('הסכום חייב להיות גדול מאפס');
+        return;
+      }
+
       try {
           await api.post(`/accounts/${txData.accountId}/transaction`, {
               type: txData.type,
-              amount: Number(txData.amount)
+              amount: amount
           });
           setOpenTxDialog(false);
+          setAmountError('');
           setSnackbar({ open: true, message: 'הפעולה בוצעה בהצלחה', severity: 'success' });
           fetchCustomer();
           setTxData({ ...txData, amount: '' });
@@ -205,7 +218,7 @@ const CustomerDetails: React.FC = () => {
       </Dialog>
 
       {/* Transaction Dialog */}
-      <Dialog open={openTxDialog} onClose={() => setOpenTxDialog(false)}>
+      <Dialog open={openTxDialog} onClose={() => { setOpenTxDialog(false); setAmountError(''); }}>
           <DialogTitle>{txData.type === 'DEPOSIT' ? 'הפקדת כספים' : 'משיכת כספים'}</DialogTitle>
           <DialogContent sx={{ minWidth: 300 }}>
               <TextField
@@ -215,10 +228,14 @@ const CustomerDetails: React.FC = () => {
                 margin="normal"
                 value={txData.amount}
                 onChange={(e) => setTxData({...txData, amount: e.target.value})}
+                error={!!amountError}
+                helperText={amountError}
+                required
+                inputProps={{ min: 0.01, step: 0.01 }}
               />
           </DialogContent>
           <DialogActions>
-              <Button onClick={() => setOpenTxDialog(false)}>ביטול</Button>
+              <Button onClick={() => { setOpenTxDialog(false); setAmountError(''); }}>ביטול</Button>
               <Button onClick={handleTransaction} color="primary">אישור</Button>
           </DialogActions>
       </Dialog>
