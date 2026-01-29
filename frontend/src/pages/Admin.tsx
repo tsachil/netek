@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogTitle, DialogContent, FormControl, InputLabel, Select, MenuItem, DialogActions } from '@mui/material';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogTitle, DialogContent, FormControl, InputLabel, Select, MenuItem, DialogActions, CircularProgress, Alert, Snackbar } from '@mui/material';
 import api from '../api/axios';
 
 interface Branch {
@@ -21,27 +21,38 @@ const Admin: React.FC = () => {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   // Form state
   const [role, setRole] = useState('');
   const [branchId, setBranchId] = useState('');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async (signal?: AbortSignal) => {
     try {
+      setError(null);
       const [uRes, bRes] = await Promise.all([
-          api.get('/admin/users'),
-          api.get('/admin/branches')
+          api.get('/admin/users', { signal }),
+          api.get('/admin/branches', { signal })
       ]);
       setUsers(uRes.data);
       setBranches(bRes.data);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      if (err.name !== 'CanceledError') {
+        setError('שגיאה בטעינת הנתונים');
+        console.error(err);
+      }
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
+  }, [fetchData]);
 
   const handleEdit = (user: User) => {
       setEditUser(user);
@@ -55,14 +66,24 @@ const Admin: React.FC = () => {
       try {
           await api.patch(`/admin/users/${editUser.id}`, { role, branchId });
           setOpen(false);
+          setSnackbar({ open: true, message: 'המשתמש עודכן בהצלחה', severity: 'success' });
           fetchData();
       } catch (err) {
-          alert('עדכון המשתמש נכשל');
+          setSnackbar({ open: true, message: 'עדכון המשתמש נכשל', severity: 'error' });
       }
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Typography variant="h4" gutterBottom>ניהול משתמשים</Typography>
       <TableContainer component={Paper}>
         <Table>
@@ -116,6 +137,17 @@ const Admin: React.FC = () => {
               <Button onClick={handleSave} color="primary">שמור</Button>
           </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

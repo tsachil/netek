@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from '@mui/material';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions, CircularProgress, Alert, Snackbar } from '@mui/material';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+
+interface Account {
+  id: string;
+  type: string;
+  balance: number;
+}
 
 interface Customer {
   id: string;
   name: string;
   email: string;
   phone: string;
-  accounts: any[];
+  accounts: Account[];
 }
 
 const Dashboard: React.FC = () => {
@@ -19,21 +25,32 @@ const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', phone: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await api.get('/customers');
+      setError(null);
+      const res = await api.get('/customers', { signal });
       setCustomers(res.data);
       setFilteredCustomers(res.data);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      if (err.name !== 'CanceledError') {
+        setError('שגיאה בטעינת הלקוחות');
+        console.error(err);
+      }
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchCustomers();
-  }, []);
+    const controller = new AbortController();
+    fetchCustomers(controller.signal);
+    return () => controller.abort();
+  }, [fetchCustomers]);
 
   useEffect(() => {
     const lower = searchTerm.toLowerCase();
@@ -48,15 +65,25 @@ const Dashboard: React.FC = () => {
     try {
         await api.post('/customers', newCustomer);
         setOpen(false);
-        fetchCustomers();
         setNewCustomer({ name: '', email: '', phone: '' });
+        setSnackbar({ open: true, message: 'הלקוח נוצר בהצלחה', severity: 'success' });
+        await fetchCustomers();
     } catch (err) {
-        alert('יצירת הלקוח נכשלה');
+        setSnackbar({ open: true, message: 'יצירת הלקוח נכשלה', severity: 'error' });
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
         <Typography variant="h4">לקוחות הסניף</Typography>
         <div style={{ display: 'flex', gap: '20px' }}>
@@ -108,6 +135,17 @@ const Dashboard: React.FC = () => {
             <Button onClick={handleCreate} color="primary">צור</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

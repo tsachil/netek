@@ -4,7 +4,6 @@ import prisma from '../prisma';
 export const getBranchTransactions = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
-    console.log(`Debug: User ${user.email} Role: ${user.role} Branch: ${user.branchId}`);
     const where: any = {};
 
     if (user.role !== 'ADMIN') {
@@ -14,7 +13,7 @@ export const getBranchTransactions = async (req: Request, res: Response) => {
             }
         };
     }
-    
+
     // Fetch transactions where the account belongs to a customer in the user's branch
     const transactions = await prisma.transaction.findMany({
       where,
@@ -34,6 +33,7 @@ export const getBranchTransactions = async (req: Request, res: Response) => {
 
     res.json(transactions);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching transactions', error });
+    console.error('getBranchTransactions Error:', error);
+    res.status(500).json({ message: 'Error fetching transactions' });
   }
 };

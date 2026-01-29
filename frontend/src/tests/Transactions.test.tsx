@@ -11,10 +11,10 @@ vi.mock('../api/axios');
 describe('Transactions Page', () => {
     test('renders transactions list', async () => {
         const mockTransactions = [
-            { 
-                id: 'tx1', 
-                amount: 500, 
-                type: 'DEPOSIT', 
+            {
+                id: 'tx1',
+                amount: 500,
+                type: 'DEPOSIT',
                 timestamp: new Date().toISOString(),
                 account: { customer: { name: 'Alice' } },
                 user: { name: 'Banker Bob' }
@@ -24,8 +24,11 @@ describe('Transactions Page', () => {
 
         renderWithAuth(<Transactions />);
 
-        expect(screen.getByText(/תנועות הסניף/i)).toBeInTheDocument();
-        
+        // Wait for loading to complete and content to render
+        await waitFor(() => {
+            expect(screen.getByText(/תנועות הסניף/i)).toBeInTheDocument();
+        });
+
         await waitFor(() => {
             expect(screen.getByText('Alice')).toBeInTheDocument();
             expect(screen.getByText('הפקדה')).toBeInTheDocument();

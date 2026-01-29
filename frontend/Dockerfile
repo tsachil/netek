@@ -8,6 +8,7 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+EXPOSE 5173 5180
 
-CMD ["npm", "run", "dev", "--", "--host"]
+# Run both the HTTP redirect server and Vite HTTPS server
+CMD sh -c "node redirect-server.cjs & npm run dev -- --host"

@@ -6,13 +6,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3030:5173"
+      - "3030:5173"   # HTTPS
+      - "3000:5180"   # HTTP (redirects to HTTPS)
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - ./certs:/app/certs
     environment:
       - VITE_API_URL=https://localhost:8080
+      - HTTPS_EXTERNAL_PORT=3030
     depends_on:
       - backend
 

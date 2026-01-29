@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Button, Grid, Card, CardContent, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Typography, Button, Grid, Card, CardContent, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Snackbar } from '@mui/material';
 import api from '../api/axios';
 
 interface Transaction {
@@ -30,31 +30,48 @@ const CustomerDetails: React.FC = () => {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [openAccountDialog, setOpenAccountDialog] = useState(false);
   const [openTxDialog, setOpenTxDialog] = useState(false);
-  
-  const [newAccountType, setNewAccountType] = useState('CHECKING');
-  
-  const [txData, setTxData] = useState({ accountId: '', type: 'DEPOSIT', amount: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchCustomer = async () => {
-    try {
-      const res = await api.get(`/customers/${id}`);
-      setCustomer(res.data);
-    } catch (err) {
-      console.error(err);
+  const [newAccountType, setNewAccountType] = useState('CHECKING');
+
+  const [txData, setTxData] = useState({ accountId: '', type: 'DEPOSIT', amount: '' });
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+
+  const fetchCustomer = useCallback(async (signal?: AbortSignal) => {
+    if (!id) {
+      setError('מזהה לקוח חסר');
+      setLoading(false);
+      return;
     }
-  };
+    try {
+      setError(null);
+      const res = await api.get(`/customers/${id}`, { signal });
+      setCustomer(res.data);
+    } catch (err: any) {
+      if (err.name !== 'CanceledError') {
+        setError('שגיאה בטעינת פרטי הלקוח');
+        console.error(err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
-    fetchCustomer();
-  }, [id]);
+    const controller = new AbortController();
+    fetchCustomer(controller.signal);
+    return () => controller.abort();
+  }, [fetchCustomer]);
 
   const handleCreateAccount = async () => {
     try {
         await api.post('/accounts', { customerId: id, type: newAccountType });
         setOpenAccountDialog(false);
+        setSnackbar({ open: true, message: 'החשבון נפתח בהצלחה', severity: 'success' });
         fetchCustomer();
     } catch (err) {
-        alert('פתיחת חשבון נכשלה');
+        setSnackbar({ open: true, message: 'פתיחת חשבון נכשלה', severity: 'error' });
     }
   };
 
@@ -65,10 +82,11 @@ const CustomerDetails: React.FC = () => {
               amount: Number(txData.amount)
           });
           setOpenTxDialog(false);
+          setSnackbar({ open: true, message: 'הפעולה בוצעה בהצלחה', severity: 'success' });
           fetchCustomer();
           setTxData({ ...txData, amount: '' });
       } catch (err) {
-          alert('הפעולה נכשלה');
+          setSnackbar({ open: true, message: 'הפעולה נכשלה', severity: 'error' });
       }
   };
 
@@ -77,7 +95,21 @@ const CustomerDetails: React.FC = () => {
       setOpenTxDialog(true);
   };
 
-  if (!customer) return <div>טוען...</div>;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
+  if (!customer) {
+    return <Alert severity="warning">לקוח לא נמצא</Alert>;
+  }
 
   return (
     <div>
@@ -167,13 +199,13 @@ const CustomerDetails: React.FC = () => {
       <Dialog open={openTxDialog} onClose={() => setOpenTxDialog(false)}>
           <DialogTitle>{txData.type === 'DEPOSIT' ? 'הפקדת כספים' : 'משיכת כספים'}</DialogTitle>
           <DialogContent sx={{ minWidth: 300 }}>
-              <TextField 
-                label="סכום" 
-                type="number" 
-                fullWidth 
-                margin="normal" 
-                value={txData.amount} 
-                onChange={(e) => setTxData({...txData, amount: e.target.value})} 
+              <TextField
+                label="סכום"
+                type="number"
+                fullWidth
+                margin="normal"
+                value={txData.amount}
+                onChange={(e) => setTxData({...txData, amount: e.target.value})}
               />
           </DialogContent>
           <DialogActions>
@@ -181,6 +213,17 @@ const CustomerDetails: React.FC = () => {
               <Button onClick={handleTransaction} color="primary">אישור</Button>
           </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

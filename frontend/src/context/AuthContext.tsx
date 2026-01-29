@@ -44,8 +44,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await api.post('/auth/logout');
       setUser(null);
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed', error);
+      // Still redirect on error - user wanted to logout
+      setUser(null);
+      window.location.href = '/';
     }
   };
 

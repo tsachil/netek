@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, TableSortLabel } from '@mui/material';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, TableSortLabel, CircularProgress, Alert } from '@mui/material';
 import api from '../api/axios';
 
 interface Transaction {
@@ -28,18 +28,29 @@ const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'timestamp', direction: 'desc' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const res = await api.get('/transactions');
-        setTransactions(res.data);
-      } catch (err) {
+  const fetchTransactions = useCallback(async (signal?: AbortSignal) => {
+    try {
+      setError(null);
+      const res = await api.get('/transactions', { signal });
+      setTransactions(res.data);
+    } catch (err: any) {
+      if (err.name !== 'CanceledError') {
+        setError('שגיאה בטעינת התנועות');
         console.error(err);
       }
-    };
-    fetchTransactions();
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchTransactions(controller.signal);
+    return () => controller.abort();
+  }, [fetchTransactions]);
 
   const processedTransactions = useMemo(() => {
     let data = [...transactions];
@@ -107,14 +118,23 @@ const Transactions: React.FC = () => {
     setSortConfig({ key: property, direction: isAsc ? 'desc' : 'asc' });
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
         <Typography variant="h4">תנועות הסניף (100 אחרונות)</Typography>
-        <TextField 
-            size="small" 
-            label="חיפוש תנועות" 
-            variant="outlined" 
+        <TextField
+            size="small"
+            label="חיפוש תנועות"
+            variant="outlined"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
         />

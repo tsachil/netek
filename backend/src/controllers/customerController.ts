@@ -64,14 +64,15 @@ export const getCustomerById = async (req: Request, res: Response) => {
 
     const customer = await prisma.customer.findUnique({
       where: { id },
-      include: { 
+      include: {
         accounts: {
           include: {
             transactions: {
-              orderBy: { timestamp: 'desc' }
+              orderBy: { timestamp: 'desc' },
+              take: 50 // Limit transactions per account to prevent unbounded responses
             }
           }
-        } 
+        }
       },
     });
 
