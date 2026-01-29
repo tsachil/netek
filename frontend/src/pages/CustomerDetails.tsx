@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Button, Grid, Card, CardContent, Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Snackbar } from '@mui/material';
 import api from '../api/axios';
 
@@ -27,6 +27,7 @@ interface Customer {
 
 const CustomerDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [openAccountDialog, setOpenAccountDialog] = useState(false);
   const [openTxDialog, setOpenTxDialog] = useState(false);
@@ -113,7 +114,7 @@ const CustomerDetails: React.FC = () => {
 
   return (
     <div>
-      <Button variant="outlined" onClick={() => window.history.back()} style={{ marginBottom: '20px' }}>&rarr; חזרה ללוח הבקרה</Button>
+      <Button variant="outlined" onClick={() => navigate('/')} style={{ marginBottom: '20px' }}>&rarr; חזרה ללוח הבקרה</Button>
       
       <Typography variant="h4" gutterBottom>{customer.name}</Typography>
       <Typography variant="body1">אימייל: {customer.email}</Typography>
