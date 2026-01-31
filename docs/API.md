@@ -7,6 +7,9 @@ Base URL: `https://localhost:8080`
 - `GET /auth/me`: Get current user session.
 - `POST /auth/logout`: Destroy session.
 
+## Public (No Authentication)
+- `GET /public/customers`: Get a list of all customers.
+
 ## Customers
 - `GET /customers`: List customers (Filtered by Branch, unless ADMIN).
 - `POST /customers`: Create new customer.
