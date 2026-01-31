@@ -25,6 +25,7 @@ services:
     command: sh -c "npx prisma migrate deploy && npm run dev"
     ports:
       - "8080:5000"
+      - "8081:8081"
     volumes:
       - ./backend:/app
       - /app/node_modules

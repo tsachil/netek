@@ -12,6 +12,7 @@ import adminRoutes from './routes/admin';
 import publicRoutes from './routes/public';
 import pg from 'pg';
 import https from 'https';
+import http from 'http';
 import fs from 'fs';
 const pgSession = require('connect-pg-simple')(session);
 
@@ -26,7 +27,11 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 const app = express();
+const unauthenticatedApp = express();
+
 const port = process.env.PORT || 5000;
+const unauthenticatedPort = 8081;
+
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL
 });
@@ -36,6 +41,12 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+unauthenticatedApp.use(cors({
+  origin: 'https://localhost:3030',
+}));
+unauthenticatedApp.use(express.json());
+
 
 app.use(session({
   store: new pgSession({
@@ -62,7 +73,7 @@ app.use('/customers', customerRoutes);
 app.use('/accounts', accountRoutes);
 app.use('/transactions', transactionRoutes);
 app.use('/admin', adminRoutes);
-app.use('/public', publicRoutes);
+unauthenticatedApp.use('/public', publicRoutes);
 
 app.get('/', (req, res) => {
   res.send('Banker Dashboard API is running');
@@ -75,4 +86,8 @@ const httpsOptions = {
 
 https.createServer(httpsOptions, app).listen(port, () => {
   console.log(`Server is running on port ${port} (HTTPS)`);
+});
+
+http.createServer(unauthenticatedApp).listen(unauthenticatedPort, () => {
+  console.log(`Unauthenticated server is running on port ${unauthenticatedPort} (HTTP)`);
 });
