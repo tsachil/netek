@@ -9,6 +9,7 @@ import customerRoutes from './routes/customers';
 import accountRoutes from './routes/accounts';
 import transactionRoutes from './routes/transactions';
 import adminRoutes from './routes/admin';
+import publicRoutes from './routes/public';
 import pg from 'pg';
 import https from 'https';
 import fs from 'fs';
@@ -61,6 +62,7 @@ app.use('/customers', customerRoutes);
 app.use('/accounts', accountRoutes);
 app.use('/transactions', transactionRoutes);
 app.use('/admin', adminRoutes);
+app.use('/public', publicRoutes);
 
 app.get('/', (req, res) => {
   res.send('Banker Dashboard API is running');

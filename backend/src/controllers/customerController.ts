@@ -86,7 +86,21 @@ export const getCustomerById = async (req: Request, res: Response) => {
 
     res.json(customer);
   } catch (error) {
-    console.error('getCustomerById Error:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
+    };
+    
+    export const getAllCustomers = async (req: Request, res: Response) => {
+      try {
+        const customers = await prisma.customer.findMany({
+          include: {
+            accounts: true,
+          }
+        });
+        res.json(customers);
+      } catch (error) {
+        console.error('getAllCustomers Error:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
+    };
+    
