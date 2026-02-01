@@ -40,7 +40,7 @@ export const getBranchTransactions = async (req: Request, res: Response) => {
 
 export const getPublicCustomerTransactions = async (req: Request, res: Response) => {
   try {
-    const { customerId } = req.params;
+    const customerId = req.params.customerId as string;
 
     const transactions = await prisma.transaction.findMany({
       where: {
