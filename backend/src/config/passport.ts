@@ -20,7 +20,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || 'mock_id',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'mock_secret',
-      callbackURL: '/auth/google/callback',
+      callbackURL: 'http://localhost:8080/auth/google/callback',
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
