@@ -37,3 +37,33 @@ export const getBranchTransactions = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error fetching transactions' });
   }
 };
+
+export const getPublicCustomerTransactions = async (req: Request, res: Response) => {
+  try {
+    const { customerId } = req.params;
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        account: {
+          customerId: customerId
+        }
+      },
+      include: {
+        account: {
+          select: {
+            type: true
+          }
+        }
+      },
+      orderBy: {
+        timestamp: 'desc'
+      },
+      take: 50
+    });
+
+    res.json(transactions);
+  } catch (error) {
+    console.error('getPublicCustomerTransactions Error:', error);
+    res.status(500).json({ message: 'Error fetching customer transactions' });
+  }
+};
