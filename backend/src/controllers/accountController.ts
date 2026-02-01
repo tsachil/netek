@@ -126,3 +126,71 @@ export const performTransaction = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+export const performPublicTransaction = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+
+    const validation = performTransactionSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({ message: 'Invalid input', errors: validation.error.issues });
+    }
+
+    const { amount, type } = validation.data;
+    const txAmount = new Decimal(amount);
+
+    // Perform entire operation atomically with SERIALIZABLE isolation to prevent race conditions
+    const result = await prisma.$transaction(async (tx) => {
+        // Fetch account INSIDE transaction to ensure consistency
+        const account = await tx.account.findUnique({
+            where: { id },
+            include: { customer: true }
+        });
+
+        if (!account) {
+            throw new Error('ACCOUNT_NOT_FOUND');
+        }
+
+        const currentBalance = new Decimal(account.balance.toString());
+
+        if (type === 'WITHDRAWAL' && currentBalance.lessThan(txAmount)) {
+            throw new Error('INSUFFICIENT_FUNDS');
+        }
+
+        const newBalance = type === 'DEPOSIT'
+            ? currentBalance.plus(txAmount)
+            : currentBalance.minus(txAmount);
+
+        const updatedAccount = await tx.account.update({
+            where: { id },
+            data: { balance: new Prisma.Decimal(newBalance.toString()) }
+        });
+
+        const transaction = await tx.transaction.create({
+            data: {
+                accountId: id,
+                amount: new Prisma.Decimal(txAmount.toString()),
+                type: type,
+                performedBy: '00000000-0000-0000-0000-000000000000'
+            }
+        });
+
+        return { account: updatedAccount, transaction };
+    }, {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+    });
+
+    res.json(result);
+
+  } catch (error: any) {
+    if (error.message === 'ACCOUNT_NOT_FOUND') {
+      return res.status(440).json({ message: 'Account not found' });
+    }
+    if (error.message === 'INSUFFICIENT_FUNDS') {
+      return res.status(400).json({ message: 'Insufficient funds' });
+    }
+    console.error('Transaction Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+

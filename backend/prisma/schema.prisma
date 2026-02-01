@@ -12,6 +12,7 @@ enum Role {
   TELLER
   MANAGER
   ADMIN
+  SYSTEM
 }
 
 enum AccountType {
