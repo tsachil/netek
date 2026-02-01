@@ -11,9 +11,7 @@ import transactionRoutes from './routes/transactions';
 import adminRoutes from './routes/admin';
 import publicRoutes from './routes/public';
 import pg from 'pg';
-import https from 'https';
 import http from 'http';
-import fs from 'fs';
 const pgSession = require('connect-pg-simple')(session);
 
 dotenv.config();
@@ -37,13 +35,13 @@ const pgPool = new pg.Pool({
 });
 
 app.use(cors({
-  origin: 'https://localhost:3030', // Allow frontend
+  origin: 'http://localhost:3030', // Allow frontend
   credentials: true
 }));
 app.use(express.json());
 
 unauthenticatedApp.use(cors({
-  origin: 'https://localhost:3030',
+  origin: 'http://localhost:3030',
 }));
 unauthenticatedApp.use(express.json());
 
@@ -58,7 +56,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-      secure: true, // Secure true for HTTPS
+      secure: false, // Secure false for HTTP
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days,
@@ -79,13 +77,8 @@ app.get('/', (req, res) => {
   res.send('Banker Dashboard API is running');
 });
 
-const httpsOptions = {
-  key: fs.readFileSync('/app/certs/server.key'),
-  cert: fs.readFileSync('/app/certs/server.crt')
-};
-
-https.createServer(httpsOptions, app).listen(port, () => {
-  console.log(`Server is running on port ${port} (HTTPS)`);
+http.createServer(app).listen(port, () => {
+  console.log(`Server is running on port ${port} (HTTP)`);
 });
 
 http.createServer(unauthenticatedApp).listen(unauthenticatedPort, () => {
